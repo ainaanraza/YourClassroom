@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Your Classroom</title>
+  <style>
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .animate-slide-in {
+      animation: slideIn 0.5s ease-out;
+    }
+
+    /* Header Animation */
+    .header-icon {
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Base Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Search Bar */
+    .search-bar {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      border: 2px solid transparent;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      border-color: #4caf50;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #45a049;
+    }
+
+    /* Playlist Grid */
+    .playlist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      padding: 1rem;
+    }
+
+    .playlist-item {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .playlist-thumbnail {
+      height: 160px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 8px 8px 0 0;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Container Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    /* Header Styles */
+    header {
+      background: linear-gradient(to right, #4caf50, #45a049);
+      color: white;
+      padding: 2rem 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('/api/placeholder/1920/300');
+      opacity: 0.1;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        margin-bottom: 1rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <!-- Header -->
+  <header class="animate-fade-in">
+    <div class="header-background"></div>
+    <div class="header-content">
+      <i class="fas fa-chalkboard-teacher text-4xl header-icon"></i>
+      <h1 class="text-4xl font-bold mt-2">Your Classroom</h1>
+    </div>
+  </header>
+
+  <div class="container mx-auto p-6 flex flex-col lg:flex-row gap-6">
+    <!-- Sidebar -->
+    <aside class="lg:w-1/4 space-y-6 animate-slide-in">
+      <!-- User Profile -->
+      <div class="card p-6">
+        <h3 class="text-xl font-bold mb-4">User Profile</h3>
+        <p class="text-gray-700">Name: Ainaan Raza</p>
+      </div>
+
+      <!-- History -->
+      <div class="card p-6">
+        <h3 class="text-xl font-bold mb-4">History</h3>
+        <div id="lectureHistory" class="space-y-3"></div>
+        <button onclick="clearAllLectureHistory()" class="btn btn-primary w-full mt-4">Clear All History</button>
+      </div>
+
+      <!-- Saved Playlists -->
+      <div class="card p-6">
+        <h3 class="text-xl font-bold mb-4">Saved Playlists</h3>
+        <div id="savedPlaylists" class="space-y-3"></div>
+        <button onclick="clearAllSavedPlaylists()" class="btn btn-primary w-full mt-4">Clear All Playlists</button>
+      </div>
+
+      <!-- Saved Roadmaps -->
+      <div class="card p-6">
+        <h3 class="text-xl font-bold mb-4">Saved Roadmaps</h3>
+        <div id="savedRoadmaps" class="space-y-3"></div>
+        <button onclick="clearAllRoadmaps()" class="btn btn-primary w-full mt-4">Clear All Roadmaps</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="lg:w-3/4 space-y-6 animate-slide-in">
+      <!-- Search Bar -->
+      <div class="card search-bar">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search for a topic...">
+        <button onclick="fetchPlaylists()" class="btn btn-primary">Search</button>
+        <button onclick="redirectToRoadmap()" class="btn btn-primary">Roadmap</button>
+      </div>
+
+      <!-- Last Played -->
+      <div id="lastPlayedContainer"></div>
+
+      <!-- Playlists -->
+      <div id="playlistContainer" class="playlist-grid"></div>
+    </main>
+  </div>
+
+  <script>
+    const lectureHistory = JSON.parse(localStorage.getItem("lectureHistory")) || [];
+    const savedPlaylists = JSON.parse(localStorage.getItem("savedPlaylists")) || [];
+    const lastPlayedVideo = JSON.parse(localStorage.getItem("lastPlayedVideo"));
+
+    // Check for search query in URL
+    const params = new URLSearchParams(window.location.search);
+    const searchQuery = params.get("search");
+    if (searchQuery) {
+      document.getElementById("searchInput").value = searchQuery;
+      fetchPlaylists();
+    }
+
+    function redirectToRoadmap() {
+      const query = document.getElementById("searchInput").value;
+      if (query) {
+        window.location.href = `roadmap.html?topic=${encodeURIComponent(query)}`;
+      } else {
+        alert("Please enter a topic to generate a roadmap.");
+      }
+    }
+
+    function renderLastPlayed() {
+      const container = document.getElementById("lastPlayedContainer");
+      if (lastPlayedVideo) {
+        const thumbnailUrl = `https://img.youtube.com/vi/${lastPlayedVideo.videoId}/hqdefault.jpg`;
+        container.innerHTML = `
+          <div class="card p-4 animate-fade-in">
+            <div class="flex items-center gap-4">
+              <img src="${thumbnailUrl}" alt="${lastPlayedVideo.title}" class="w-32 h-24 object-cover rounded">
+              <div class="flex-1">
+                <h3 class="font-semibold mb-2">Last Played</h3>
+                <p class="text-gray-600 mb-2">${lastPlayedVideo.title}</p>
+                <button onclick="resumeLastPlayed()" class="btn btn-primary">Resume</button>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = "";
+      }
+    }
+
+    function updateLectureHistory() {
+      const historyDiv = document.getElementById("lectureHistory");
+      historyDiv.innerHTML = lectureHistory.length
+        ? lectureHistory.map((item, index) => `
+          <div class="card p-3 flex justify-between items-center">
+            <span class="text-sm">${item.title}</span>
+            <div class="flex gap-2">
+              <button onclick="redirectToPlaylistPage('${item.id}', '${item.title}')" class="text-green-600 hover:text-green-700">
+                <i class="fas fa-play"></i>
+              </button>
+              <button onclick="removeLectureHistory(${index})" class="text-red-600 hover:text-red-700">
+                <i class="fas fa-trash"></i>
+              </button>
+              <button onclick="savePlaylist('${item.title}', '${item.id}')" class="text-blue-600 hover:text-blue-700">
+                <i class="fas fa-bookmark"></i>
+              </button>
+            </div>
+          </div>
+        `).join("")
+        : "<p class='text-gray-500 text-center'>No lecture history available.</p>";
+        localStorage.setItem("lectureHistory", JSON.stringify(lectureHistory));
+    }
+
+    function updateSavedPlaylists() {
+      const playlistsDiv = document.getElementById("savedPlaylists");
+      playlistsDiv.innerHTML = savedPlaylists.length
+        ? savedPlaylists.map((item, index) => `
+          <div class="card p-3 flex justify-between items-center">
+            <span class="text-sm">${item.title}</span>
+            <div class="flex gap-2">
+              <button onclick="redirectToPlaylistPage('${item.id}', '${item.title}')" class="text-green-600 hover:text-green-700">
+                <i class="fas fa-play"></i>
+              </button>
+              <button onclick="removeSavedPlaylist(${index})" class="text-red-600 hover:text-red-700">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `).join("")
+        : "<p class='text-gray-500 text-center'>No saved playlists available.</p>";
+        localStorage.setItem("savedPlaylists", JSON.stringify(savedPlaylists));
+    }
+
+    function fetchPlaylists() {
+      const searchQuery = document.getElementById("searchInput").value;
+      const container = document.getElementById("playlistContainer");
+      container.innerHTML = '<div class="text-center py-8">Loading...</div>';
+
+      const apiKey = "AIzaSyB8qZ_7Z7miBrUeo2cRDE6aPwyhe5TVCo8";
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${searchQuery}&type=playlist&key=${apiKey}&maxResults=50`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          container.innerHTML = "";
+          data.items.forEach(item => {
+            const playlist = document.createElement("div");
+            playlist.className = "card playlist-item animate-slide-in";
+            const thumbnailUrl = item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default.url;
+            
+            playlist.innerHTML = `
+              <div class="playlist-thumbnail" style="background-image: url('${thumbnailUrl}')"></div>
+              <div class="p-4 flex flex-col flex-1">
+                <h3 class="font-semibold mb-2 flex-1">${item.snippet.title}</h3>
+                <p class="text-sm text-gray-600 mb-4">by ${item.snippet.channelTitle}</p>
+                <div class="flex justify-between items-center">
+                  <button onclick="redirectToPlaylistPage('${item.id.playlistId}', '${item.snippet.title}')" class="btn btn-primary">
+                    View
+                  </button>
+                  <button onclick="savePlaylist('${item.snippet.title}', '${item.id.playlistId}')" class="text-green-600 hover:text-green-700">
+                    <i class="fas fa-bookmark"></i>
+                  </button>
+                </div>
+              </div>
+            `;
+            container.appendChild(playlist);
+          });
+        })
+        .catch(error => {
+          container.innerHTML = '<div class="text-center py-8 text-red-600">Error loading playlists. Please try again.</div>';
+          console.error("Error fetching playlists:", error);
+        });
+    }
+
+    // Existing functions
+    function resumeLastPlayed() {
+      if (lastPlayedVideo) {
+        const { playlistId, videoId } = lastPlayedVideo;
+        window.location.href = `playlist.html?playlistId=${playlistId}&videoId=${videoId}`;
+      }
+    }
+
+    function redirectToPlaylistPage(playlistId, title) {
+      saveToLectureHistory(title, playlistId);
+      window.location.href = `playlist.html?playlistId=${playlistId}`;
+    }
+
+    function saveToLectureHistory(title, id) {
+      if (!lectureHistory.some(item => item.id === id)) {
+        lectureHistory.push({ title, id });
+        updateLectureHistory();
+      }
+    }
+
+    function savePlaylist(title, id) {
+      if (!savedPlaylists.some(item => item.id === id)) {
+        savedPlaylists.push({ title, id });
+        updateSavedPlaylists();
+      }
+    }
+
+    function removeLectureHistory(index) {
+      lectureHistory.splice(index, 1);
+      updateLectureHistory();
+    }
+
+    function removeSavedPlaylist(index) {
+      savedPlaylists.splice(index, 1);
+      updateSavedPlaylists();
+    }
+
+    function clearAllLectureHistory() {
+      lectureHistory.length = 0;
+      updateLectureHistory();
+    }
+
+    function clearAllSavedPlaylists() {
+      savedPlaylists.length = 0;
+      updateSavedPlaylists();
+    }
+
+    function updateSavedRoadmaps() {
+      const savedRoadmaps = JSON.parse(localStorage.getItem("savedRoadmaps")) || [];
+      const roadmapsDiv = document.getElementById("savedRoadmaps");
+      roadmapsDiv.innerHTML = savedRoadmaps.length
+        ? savedRoadmaps.map((roadmap, index) => `
+        <div class="card p-3 flex justify-between items-center">
+            <span class="text-sm">${roadmap.topic}</span>
+            <div class="flex gap-2">
+              <button onclick="viewSavedRoadmap('${roadmap.topic}')" class="text-green-600 hover:text-green-700">
+                <i class="fas fa-play"></i>
+                </button>
+              <button onclick="deleteSavedRoadmap(${index})"class="text-red-600 hover:text-red-700">
+                <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <br>
+          </div>
+        `).join("")
+        : "<p class='text-gray-500 text-center'>No saved roadmaps available.</p>";
+    }
+
+    // Function to view a saved roadmap
+    function viewSavedRoadmap(topic) {
+      window.location.href = `roadmap.html?topic=${encodeURIComponent(topic)}`;
+    }
+
+    // Function to delete a saved roadmap
+    function deleteSavedRoadmap(index) {
+      const savedRoadmaps = JSON.parse(localStorage.getItem("savedRoadmaps")) || [];
+      savedRoadmaps.splice(index, 1); // Remove the roadmap at the specified index
+      localStorage.setItem("savedRoadmaps", JSON.stringify(savedRoadmaps));
+      updateSavedRoadmaps(); // Refresh the displayed roadmaps
+    }
+
+    // Function to clear all saved roadmaps
+    function clearAllRoadmaps() {
+      localStorage.removeItem("savedRoadmaps"); // Remove all saved roadmaps
+      updateSavedRoadmaps(); // Refresh the displayed roadmaps
+    }
+
+    updateLectureHistory();
+    updateSavedPlaylists();
+    renderLastPlayed();
+    updateSavedRoadmaps();
+  </script>
+</body>
+</html>
+    
